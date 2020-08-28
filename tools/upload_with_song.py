@@ -90,7 +90,7 @@ def main():
     create_manifest(api,analysis_id,payload_file,manifest_filename,results.input_dir)
 
     if not api.get_analysis(analysis_id).__dict__['analysisState'] == "PUBLISHED":
-        subprocess.check_output(['score-client','upload','--manifest',os.path.join(results.input_dir,manifest_filename), '--force'], stderr=log)
+        subprocess.check_output(['score-client','upload','--manifest',os.path.join(results.input_dir,manifest_filename), '--force'])
 
     response = requests.put(server_url+'/studies/'+study_id+'/analysis/publish/'+analysis_id, headers={'Authorization':'Bearer '+access_token})
     if response.status_code > 300:
