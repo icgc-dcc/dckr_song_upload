@@ -12,19 +12,23 @@ import subprocess
 import requests
 
 
-log = open("log.txt", "w")
+def create_manifest(api, analysis_id, manifest_file,files_dir):
+   manifest_client = ManifestClient(api)
+   manifest_file_path = os.path.join(files_dir,manifest_file)
+   manifest_client.write_manifest(analysis_id, files_dir, manifest_file_path)
+   return
 
-def create_manifest(api, analysis_id, payload_file, manifest_file,files_dir):
-    payload = json.load(open(payload_file))
+#def create_manifest(api, analysis_id, payload_file, manifest_file,files_dir):
+#    payload = json.load(open(payload_file))
 
-    with open(os.path.join(files_dir,manifest_file), 'w') as outfile:
-        outfile.write(analysis_id+'\t\t\n')
-        for i in range(0,len(payload.get('file'))):
-            file_object = payload.get('file')[i]
-            outfile.write(retrieve_object_id(api,analysis_id,
-                                             file_object.get('fileName'),
-                                             file_object.get('fileMd5sum'))+'\t'+os.path.join(files_dir,file_object.get('fileName'))+'\t'+file_object.get('fileMd5sum')+'\n')
-    return
+#    with open(os.path.join(files_dir,manifest_file), 'w') as outfile:
+#        outfile.write(analysis_id+'\t\t\n')
+#        for i in range(0,len(payload.get('file'))):
+#            file_object = payload.get('file')[i]
+#            outfile.write(retrieve_object_id(api,analysis_id,
+#                                             file_object.get('fileName'),
+#                                             file_object.get('fileMd5sum'))+'\t'+os.path.join(files_dir,file_object.get('fileName'))+'\t'+file_object.get('fileMd5sum')+'\n')
+#    return
 
 def retrieve_object_id(api, analysis_id, file_name, file_md5sum):
     analysis = api.get_analysis(analysis_id).__dict__
@@ -87,7 +91,8 @@ def main():
         validate_payload_against_analysis(api, analysis_id, payload_file)
 
     manifest_filename = results.output
-    create_manifest(api,analysis_id,payload_file,manifest_filename,results.input_dir)
+    create_manifest(api,analysis_id,manifest_filename,results.input_dir)
+    #create_manifest(api,analysis_id,payload_file,manifest_filename,results.input_dir)
 
     if not api.get_analysis(analysis_id).__dict__['analysisState'] == "PUBLISHED":
         subprocess.check_output(['score-client','upload','--manifest',os.path.join(results.input_dir,manifest_filename), '--force'])
